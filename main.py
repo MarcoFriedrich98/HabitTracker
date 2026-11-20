@@ -33,7 +33,32 @@ def habit_menu():
                 )
 
                 if submenu_manage_habit == "1":
-                    CreateHabit()
+                    click.echo("\n----CREATING A NEW HABIT-----")
+
+                    # Ask for habit name
+                    name = click.prompt(
+                        "Enter the name of your habit: ",
+                        type=str
+                    ).strio()
+
+                    if not name:
+                        click.echo("Error: Please enter a habit name")
+                        return
+
+                    # Ask for periodicity
+                    click.echo("\nChoose the periodicity")
+                    click.echo("1 - daily")
+                    click.echo("2 - multiple times a day")
+                    click.echo("3 - weekly")
+                    click.echo("4 - multiple times a wwek")
+                    click.echo("5 - monthly")
+                    click.echo("6 - multiple times a month")
+
+                    periodicity = click.prompt(
+                        "Enter a number between 1 and 6: ",
+                        type=click.Choice(["1"], ["2"], ["3"], ["4"], ["5"], ["6"])
+                    )
+                    
                 elif submenu_manage_habit == "2":
                     ManageHabit()
                 elif submenu_manage_habit == "3":
