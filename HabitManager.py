@@ -18,21 +18,29 @@ def SafeHabit(habit):
         json.dump(habit, datei, indent=4, ensure_ascii=False)
 
 
-def CreateHabit(name, periodicity, daily_target=None, weekly_target=None):
+def CreateHabit(name, periodicity, daily_target=None, weekly_target=None, monthly_target=None):
     """Creating a new Habit. The user can enter the habit name and periodicity.
     The habit will be stored in a json file. Additionally the creation date will be stored as well.
     The streak counter will be set to zero."""
     habits = LoadHabit()
-    HabitName = input("Enter Habit Name: ")
-    @click.echo("How often to you want to complete this Haibt?")
-    @click.echo("1 - daily")
-    @click.echo("2 - weekly")
-    @click.echo("3 - monthly")
 
-    choice = click.prompt(
-        "Please select one of the options",
-        type=click.Choice(["1", "2", "3"])
-    )
+    for habit in habits:
+        if habit["name"].lower() == name.lower():
+            raise ValueError("This habit already exists.")
+
+    new_habit = {
+        "name": name,
+        "periodicity": periodicity,
+        "daily_target": daily_target,
+        "weekly_target": weekly_target,
+        "monthly_target": monthly_target,
+        "created_at": datetime.now().isoformat(timespec="seconds"),
+        "current_streak": 0,
+        "longest_streak": 0
+    }
+
+    habits.append(new_habit)
+    SafeHabit(habits)
 
 def ManageHabit():
     print("Manage Habits")

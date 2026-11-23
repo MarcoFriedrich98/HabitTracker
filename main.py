@@ -39,7 +39,7 @@ def habit_menu():
                     name = click.prompt(
                         "Enter the name of your habit: ",
                         type=str
-                    ).strio()
+                    ).strip()
 
                     if not name:
                         click.echo("Error: Please enter a habit name")
@@ -53,11 +53,64 @@ def habit_menu():
                     click.echo("4 - multiple times a wwek")
                     click.echo("5 - monthly")
                     click.echo("6 - multiple times a month")
+                    click.echo("0 - Exit")
 
                     periodicity = click.prompt(
                         "Enter a number between 1 and 6: ",
-                        type=click.Choice(["1"], ["2"], ["3"], ["4"], ["5"], ["6"])
+                        type=click.Choice(["1"], ["2"], ["3"], ["4"], ["5"], ["6"], ["0"])
                     )
+
+                    periodicities = {
+                        "1": "daily",
+                        "2": "multiple times a day",
+                        "3": "weekly",
+                        "4": "multiple times a week",
+                        "5": "monthly",
+                        "6": "multiple times a month"
+                    }
+
+                    periodicity = periodicities[choice]
+
+                    daily_target = None
+                    weekly_target = None
+                    monthly_target = None
+                    if periodicity == "multiple times a day":
+                        daily_target = click.prompt(
+                            "How many times a day do you want to complete this habit?",
+                            type=click.IntRange(2, 24)
+                        )
+                    elif periodicity == "multiple times a week":
+                        weekly_target = click.prompt(
+                            "How many times a week to you want to complete this habit?",
+                            type=click.IntRange(2, 7)
+                        )
+                    elif periodicity == "multiple times a month":
+                        monthly_target = click.prompt(
+                            "How many times a month do you want to complete this habit?",
+                            type=click.IntRange(2 , 30)
+                        )
+                    elif periodicity == "0":
+                        click.echo("Back to main menu")
+                        break
+
+                    try:
+                        habit = CreateHabit(name, periodicity, daily_target, weekly_target, monthly_target)
+                        click.echo("\nHabit successfully created.")
+                        click.echo(f"Name: {name}")
+                        click.echo(f"Periodicity: {periodicity}")
+
+                        if daily_target:
+                            click.echo(f"Daily target: {daily_target} times")
+                        elif weekly_target:
+                            click.echo(f"Weekly target: {weekly_target} days")
+                        elif monthly_target:
+                            click.echo(f"Monthly target: {monthly_target} days")
+
+                        click.echo("Current streak: 0")
+
+                    except ValueError as error:
+                        click.echo(f"Error: {error}")
+
                     
                 elif submenu_manage_habit == "2":
                     ManageHabit()
