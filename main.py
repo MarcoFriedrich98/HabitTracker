@@ -2,6 +2,8 @@ import click
 from HabitManager import CreateHabit, ManageHabit, CompleteHabit, DeleteHabit
 from HabitAnalytics import AnalyseHabit
 
+manager = HabitManager("habits.json")
+
 @click.command()
 def habit_menu():
     while True:
@@ -46,13 +48,13 @@ def habit_menu():
                         return
 
                     # Ask for periodicity
-                    click.echo("\nChoose the periodicity")
-                    click.echo("1 - daily")
-                    click.echo("2 - multiple times a day")
-                    click.echo("3 - weekly")
-                    click.echo("4 - multiple times a wwek")
-                    click.echo("5 - monthly")
-                    click.echo("6 - multiple times a month")
+                    click.echo("\nChoose the periodicity:")
+                    click.echo("1 - Daily")
+                    click.echo("2 - Multiple times per day")
+                    click.echo("3 - Weekly")
+                    click.echo("4 - Multiple times per wwek")
+                    click.echo("5 - Monthly")
+                    click.echo("6 - Multiple times per month")
                     click.echo("0 - Exit")
 
                     periodicity = click.prompt(
@@ -62,31 +64,30 @@ def habit_menu():
 
                     periodicities = {
                         "1": "daily",
-                        "2": "multiple times a day",
+                        "2": "multiple_per_day",
                         "3": "weekly",
-                        "4": "multiple times a week",
+                        "4": "multiple_per_week",
                         "5": "monthly",
-                        "6": "multiple times a month"
+                        "6": "multiple_per_month"
                     }
 
                     periodicity = periodicities[choice]
 
-                    daily_target = None
-                    weekly_target = None
-                    monthly_target = None
-                    if periodicity == "multiple times a day":
-                        daily_target = click.prompt(
-                            "How many times a day do you want to complete this habit?",
+                    taget_count = 1
+
+                    if periodicity == "multiple_per_day":
+                        target_count = click.prompt(
+                            "How many times per day do you want to complete this habit?",
                             type=click.IntRange(2, 24)
                         )
-                    elif periodicity == "multiple times a week":
-                        weekly_target = click.prompt(
-                            "How many times a week to you want to complete this habit?",
+                    elif periodicity == "multiple_per_week":
+                        target_count = click.prompt(
+                            "How many times per week to you want to complete this habit?",
                             type=click.IntRange(2, 7)
                         )
-                    elif periodicity == "multiple times a month":
+                    elif periodicity == "multiple_per_month":
                         monthly_target = click.prompt(
-                            "How many times a month do you want to complete this habit?",
+                            "How many times per month do you want to complete this habit?",
                             type=click.IntRange(2 , 30)
                         )
                     elif periodicity == "0":
@@ -94,17 +95,13 @@ def habit_menu():
                         break
 
                     try:
-                        habit = CreateHabit(name, periodicity, daily_target, weekly_target, monthly_target)
+                        habit = manager.create_habit(name, periodicity, target_count)
                         click.echo("\nHabit successfully created.")
-                        click.echo(f"Name: {name}")
-                        click.echo(f"Periodicity: {periodicity}")
+                        click.echo(f"Name: {habit.name}")
+                        click.echo(f"Periodicity: {habit.periodicity}")
 
-                        if daily_target:
-                            click.echo(f"Daily target: {daily_target} times")
-                        elif weekly_target:
-                            click.echo(f"Weekly target: {weekly_target} days")
-                        elif monthly_target:
-                            click.echo(f"Monthly target: {monthly_target} days")
+                        if target_count > 1:
+                            click.echo(f"Target: {target_count} times per period")
 
                         click.echo("Current streak: 0")
 
