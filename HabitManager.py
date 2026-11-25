@@ -28,54 +28,78 @@ class Habit:
         }
 
     @classmethod
-    def habit_to_dict(cls, data):
-        return cls {
+    def habit_from_dict(cls, data):
+        return cls (
             name=data["name"],
             periodicty=data["periodicity"],
             created_at=data["created_at"],
-            target_count=data["target_count"],
-            completed_at=data["completed_at"],
-            current_streak=data["current_streak"],
-            longest_streak=data["longest_streak"]
-        }
+            target_count=data.get["target_count", 1],
+            completed_at=data.get["completed_at", []],
+            current_streak=data.get["current_streak", 0],
+            longest_streak=data.get["longest_streak", 0]
+        )
 
-    def LoadHabit():
-    try:
-        with open("habits.json", "r") as datei:
-            habits = json.load(datei)
-    except (FileNotFoundError, UnicodeDecodeError):
-        habits = []
-    except json.JSONDecodeError:
-        exit()
-
-def SafeHabit(habit):
-    with open("habits.json", "w", encoding="utf-8") as datei:
-        json.dump(habit, datei, indent=4, ensure_ascii=False)
-
-
-def CreateHabit(name, periodicity, daily_target=None, weekly_target=None, monthly_target=None):
-    """Creating a new Habit. The user can enter the habit name and periodicity.
-    The habit will be stored in a json file. Additionally the creation date will be stored as well.
-    The streak counter will be set to zero."""
-    habits = LoadHabit()
-
-    for habit in habits:
-        if habit["name"].lower() == name.lower():
-            raise ValueError("This habit already exists.")
-
-    new_habit = {
-        "name": name,
-        "periodicity": periodicity,
-        "daily_target": daily_target,
-        "weekly_target": weekly_target,
-        "monthly_target": monthly_target,
-        "created_at": datetime.now().isoformat(timespec="seconds"),
-        "current_streak": 0,
-        "longest_streak": 0
+class HabitManager:
+    periodicities = {
+        "daily",
+        "multiple_per_day",
+        "weekly",
+        "multiple_per_week",
+        "monthly",
+        "multiple_per_month"
     }
 
-    habits.append(new_habit)
-    SafeHabit(habits)
+    def LoadHabit(self):
+        """Load the Habit from the json file"""
+        try:
+            with open("habits.json", "r", encoding="utf-8") as datei:
+                self.habits = json.load(datei)
+        except (FileNotFoundError, UnicodeDecodeError):
+            self.habits = []
+        except json.JSONDecodeError:
+            exit()
+        return self.habits
+
+    def SafeHabit(self, habit):
+        """Saves the Habit in the json file."""
+        with open(self, "habits.json", "w", encoding="utf-8") as datei:
+            json.dump(self, habit, datei, indent=4, ensure_ascii=False)
+
+    def CreateHabit(self, name, periodicity, target_count=1):
+        """Creating a new Habit. The user can enter the habit name and periodicity.
+        The habit will be stored in a json file. Additionally the creation date will be stored as well.
+        The streak counter will be set to zero."""
+        habits = self.LoadHabit()
+
+        name = name.strip()
+        if not name:
+            raise ValueError("Habit name cannont be empty.")
+
+        if periodicity not in self.periodicities:
+            raise ValueError("Invalid Periodicity")
+
+        if periodicity in {"daily", "weeikly", "monthly"}:
+            target_count = 1
+        elif not isinstance(target_count, int) or target_count < 2:
+            raise ValueError("Target count must be at least two.")
+
+        for habit in habits:
+            if habit["name"].lower() == name.lower():
+                raise ValueError("This habit already exists.")
+
+        new_habit = {
+            "name": name,
+            "periodicity": periodicity,
+            "daily_target": daily_target,
+            "weekly_target": weekly_target,
+            "monthly_target": monthly_target,
+            "created_at": datetime.now().isoformat(timespec="seconds"),
+            "current_streak": 0,
+            "longest_streak": 0
+        }
+
+        habits.append(new_habit)
+        self.SafeHabit(habit)
 
 def ManageHabit():
     print("Manage Habits")
