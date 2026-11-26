@@ -49,10 +49,19 @@ class HabitManager:
         "multiple_per_month"
     }
 
+    def __init__(self, file_path="habits.json"):
+        self.file_path = Path.file_path
+        self.habits = []
+        self.LoadHabit()
+
     def LoadHabit(self):
         """Load the Habit from the json file"""
+        if not self.file_path.exists():
+            self.habits = []
+            return
+        
         try:
-            with open("habits.json", "r", encoding="utf-8") as datei:
+            with open(self.file_path, "r", encoding="utf-8") as datei:
                 self.habits = json.load(datei)
         except (FileNotFoundError, UnicodeDecodeError):
             self.habits = []
@@ -72,6 +81,7 @@ class HabitManager:
         habits = self.LoadHabit()
 
         name = name.strip()
+
         if not name:
             raise ValueError("Habit name cannont be empty.")
 
@@ -87,19 +97,21 @@ class HabitManager:
             if habit["name"].lower() == name.lower():
                 raise ValueError("This habit already exists.")
 
-        new_habit = {
-            "name": name,
-            "periodicity": periodicity,
-            "daily_target": daily_target,
-            "weekly_target": weekly_target,
-            "monthly_target": monthly_target,
-            "created_at": datetime.now().isoformat(timespec="seconds"),
-            "current_streak": 0,
-            "longest_streak": 0
-        }
+        new_habit = Habit(
+            name=name,
+            periodicity=periodicity,
+            target_count=target_count
+            created_at=datetime.now().isoformat(timespec="seconds"),
+            current_streak=0,
+            longest_streak=0
+        )
 
         habits.append(new_habit)
         self.SafeHabit(habit)
+
+def get_all_habits(self):
+    """Return all currently tracked habits."""
+    return self.habits
 
 def ManageHabit():
     print("Manage Habits")
